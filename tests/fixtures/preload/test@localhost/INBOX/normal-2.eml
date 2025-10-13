@@ -1,0 +1,18 @@
+Return-Path: <alice@example.com>
+Received: by localhost (greenmail)
+Date: Sat, 29 Sep 2023 16:45:00 +0000
+From: alice@example.com
+To: test@localhost
+Subject: Team Meeting Notes
+Message-ID: <normal2@example.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+
+Hello,
+
+Attached are the notes from today's team meeting.
+
+Please review and let me know if you have any questions.
+
+Regards,
+Alice

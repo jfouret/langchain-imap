@@ -1,0 +1,39 @@
+Return-Path: <boss@example.com>
+Received: by localhost (greenmail)
+Date: Wed, 3 Oct 2023 09:00:00 +0000
+From: boss@example.com
+To: test@localhost
+Subject: URGENT: Project Deadline Approaching
+Message-ID: <urgent-html@example.com>
+MIME-Version: 1.0
+Content-Type: multipart/alternative; boundary="----=_NextPart"
+
+------=_NextPart
+Content-Type: text/plain; charset=UTF-8
+
+URGENT: The project deadline is approaching!
+
+Please complete your tasks immediately.
+
+Project Manager
+
+------=_NextPart
+Content-Type: text/html; charset=UTF-8
+
+<html>
+<head><title>URGENT: Project Deadline</title></head>
+<body>
+<h1 style="color: red;">URGENT: Project Deadline Approaching!</h1>
+<p>The deadline for our major project is <strong>approaching</strong> quickly.</p>
+<p>Please complete all assigned tasks <em>immediately</em>.</p>
+<ul>
+<li>Task 1: Finish coding</li>
+<li>Task 2: Write documentation</li>
+<li>Task 3: Test functionality</li>
+</ul>
+<p>Contact me if you need support.</p>
+<p><strong>Project Manager</strong></p>
+</body>
+</html>
+
+------=_NextPart--

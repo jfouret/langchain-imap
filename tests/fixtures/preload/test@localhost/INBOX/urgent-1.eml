@@ -1,0 +1,18 @@
+Return-Path: <sender@example.com>
+Received: by localhost (greenmail)
+Date: Tue, 2 Oct 2023 12:00:00 +0000
+From: sender@example.com
+To: test@localhost
+Subject: URGENT: System Maintenance Required
+Message-ID: <urgent1@example.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+
+Dear user,
+
+This is an urgent notification about system maintenance that needs to be performed immediately.
+
+Please take action as soon as possible.
+
+Best regards,
+System Admin

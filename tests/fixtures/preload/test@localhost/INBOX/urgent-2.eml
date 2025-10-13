@@ -1,0 +1,15 @@
+Return-Path: <security@example.com>
+Received: by localhost (greenmail)
+Date: Mon, 1 Oct 2023 14:30:00 +0000
+From: security@example.com
+To: test@localhost
+Subject: URGENT: Security Update Available
+Message-ID: <urgent2@example.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+
+Important security alert!
+
+A critical security vulnerability has been discovered. Update your system immediately to prevent potential breaches.
+
+Security Team

@@ -1,0 +1,18 @@
+Return-Path: <john@example.com>
+Received: by localhost (greenmail)
+Date: Sun, 30 Sep 2023 10:15:00 +0000
+From: john@example.com
+To: test@localhost
+Subject: Weekly Status Update
+Message-ID: <normal1@example.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+
+Hi there,
+
+Here is the weekly status update for our project.
+
+Everything is progressing as planned.
+
+Best,
+John
