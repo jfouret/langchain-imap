@@ -2,13 +2,13 @@
 
 import pytest
 
-from langchain_imap import ImapRetriever
+from langchain_imap import ImapConfig, ImapRetriever
 
 
 class TestImapRetriever:
     """Test ImapRetriever functionality."""
 
-    def test_basic_retrieval(self, greenmail_container, greenmail_imaps_config):
+    def test_basic_retrieval(self, greenmail_imaps_config: ImapConfig) -> None:
         """Test basic email retrieval."""
         retriever = ImapRetriever(config=greenmail_imaps_config, k=50)
 
@@ -30,7 +30,7 @@ class TestImapRetriever:
             assert "from" in doc.metadata
             assert "subject" in doc.metadata
 
-    def test_urgent_subject_search(self, greenmail_container, greenmail_imaps_config):
+    def test_urgent_subject_search(self, greenmail_imaps_config: ImapConfig) -> None:
         """Test searching for emails with URGENT in subject."""
         retriever = ImapRetriever(config=greenmail_imaps_config, k=50)
 
@@ -43,8 +43,8 @@ class TestImapRetriever:
         assert all("URGENT" in subject for subject in urgent_subjects)
 
     def test_html_to_markdown_conversion(
-        self, greenmail_container, greenmail_imaps_config
-    ):
+        self, greenmail_imaps_config: ImapConfig
+    ) -> None:
         """Test HTML email conversion to markdown."""
         retriever = ImapRetriever(config=greenmail_imaps_config)
 
@@ -59,7 +59,7 @@ class TestImapRetriever:
         assert "*immediately*" in content  # Em tag to italic
         assert "- Task 1:" in content or "* Task 1:" in content
 
-    def test_limit_parameter(self, greenmail_container, greenmail_imaps_config):
+    def test_limit_parameter(self, greenmail_imaps_config: ImapConfig) -> None:
         """Test limiting number of results with k parameter."""
         retriever = ImapRetriever(config=greenmail_imaps_config)
 
@@ -71,7 +71,7 @@ class TestImapRetriever:
         docs = retriever.invoke("ALL", k=1)
         assert len(docs) == 1
 
-    def test_sender_search(self, greenmail_container, greenmail_imaps_config):
+    def test_sender_search(self, greenmail_imaps_config: ImapConfig) -> None:
         """Test searching by sender."""
         retriever = ImapRetriever(config=greenmail_imaps_config)
 
@@ -81,7 +81,7 @@ class TestImapRetriever:
         assert docs[0].metadata["subject"] == "Team Meeting Notes"
         assert docs[0].metadata["from"] == "alice@example.com"
 
-    def test_date_search(self, greenmail_container, greenmail_imaps_config):
+    def test_date_search(self, greenmail_imaps_config: ImapConfig) -> None:
         """Test date-based search."""
         # Note: IMAP date search uses format like SINCE "2-Oct-2023"
         retriever = ImapRetriever(config=greenmail_imaps_config)
@@ -100,8 +100,8 @@ class TestImapRetriever:
             assert doc_date >= cutoff_date
 
     def test_attachment_mode_names_only(
-        self, greenmail_container, greenmail_imaps_config
-    ):
+        self, greenmail_imaps_config: ImapConfig
+    ) -> None:
         """Test attachment mode 'names_only'."""
         retriever = ImapRetriever(
             config=greenmail_imaps_config, attachment_mode="names_only"
@@ -112,10 +112,12 @@ class TestImapRetriever:
         for doc in docs:
             assert "Attachments:" not in doc.page_content
 
-    def test_error_handling_invalid_config(self, greenmail_imaps_config):
+    def test_error_handling_invalid_config(
+        self, greenmail_imaps_config: ImapConfig
+    ) -> None:
         """Test error handling with invalid configuration."""
         # Create config with invalid host
-        invalid_config = greenmail_imaps_config.copy()
+        invalid_config = greenmail_imaps_config.model_copy()
         invalid_config.host = "invalid.host"
 
         retriever = ImapRetriever(config=invalid_config)
@@ -123,9 +125,9 @@ class TestImapRetriever:
         with pytest.raises(RuntimeError, match="Failed to retrieve emails"):
             retriever.invoke("ALL")
 
-    def test_auth_failure(self, greenmail_container, greenmail_imaps_config):
+    def test_auth_failure(self, greenmail_imaps_config: ImapConfig) -> None:
         """Test that authentication fails with an incorrect password."""
-        invalid_config = greenmail_imaps_config.copy(
+        invalid_config = greenmail_imaps_config.model_copy(
             update={"password": "wrongpassword"}
         )
         retriever = ImapRetriever(config=invalid_config)
@@ -133,7 +135,7 @@ class TestImapRetriever:
         with pytest.raises(RuntimeError, match="Failed to retrieve emails"):
             retriever.invoke("ALL")
 
-    def test_complex_query(self, greenmail_container, greenmail_imaps_config):
+    def test_complex_query(self, greenmail_imaps_config: ImapConfig) -> None:
         """Test complex IMAP query combining conditions."""
         retriever = ImapRetriever(config=greenmail_imaps_config)
 

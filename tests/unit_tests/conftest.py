@@ -1,9 +1,9 @@
 """Pytest fixtures for unit tests."""
 
 import subprocess
-import tempfile
 import time
 from pathlib import Path
+from typing import Generator
 
 import pytest
 import requests
@@ -12,14 +12,7 @@ from langchain_imap import ImapConfig
 
 
 @pytest.fixture(scope="session")
-def greenmail_data_dir():
-    """Create a temporary directory for GreenMail data."""
-    tmp_dir = tempfile.mkdtemp(prefix="greenmail_")
-    yield Path(tmp_dir)
-
-
-@pytest.fixture(scope="session")
-def greenmail_container(greenmail_data_dir):
+def greenmail_container() -> Generator[str]:
     """Start GreenMail container using Podman."""
     # Path to preload directory (relative to project root)
     preload_dir = Path(__file__).parent.parent / "fixtures" / "preload"
@@ -95,8 +88,9 @@ def greenmail_container(greenmail_data_dir):
 
 
 @pytest.fixture(scope="session")
-def greenmail_imaps_config():
+def greenmail_imaps_config(greenmail_container: str) -> ImapConfig:
     """Configure IMAP settings for GreenMail."""
+    assert greenmail_container is not None
     config = ImapConfig(
         host="localhost",
         port=3993,
@@ -110,8 +104,9 @@ def greenmail_imaps_config():
 
 
 @pytest.fixture(scope="session")
-def greenmail_imap_starttls_config():
+def greenmail_imap_starttls_config(greenmail_container: str) -> ImapConfig:
     """Configure IMAP settings for GreenMail."""
+    assert greenmail_container is not None
     config = ImapConfig(
         host="localhost",
         port=3143,
