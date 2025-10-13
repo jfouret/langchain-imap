@@ -8,7 +8,7 @@ from email.header import decode_header
 from email.message import EmailMessage
 from email.policy import default
 from io import BytesIO
-from typing import Any, Iterator, List, Literal, Optional
+from typing import Any, Iterator, List, Literal
 
 from html_to_markdown import convert_to_markdown
 from langchain_core.callbacks import CallbackManagerForRetrieverRun
@@ -22,8 +22,8 @@ from langchain_imap.utils import ImapConfig
 class ImapRetriever(BaseRetriever):
     """IMAP retriever to search and retrieve emails as documents.
 
-    This retriever connects to an IMAP server, searches for emails based on IMAP query syntax,
-    and returns matching emails formatted as LangChain documents.
+    This retriever connects to an IMAP server, searches for emails based on IMAP query
+    syntax, and returns matching emails formatted as LangChain documents.
 
     Setup:
         Install ``langchain-imap`` and optionally extras for attachment processing:
@@ -123,7 +123,9 @@ class ImapRetriever(BaseRetriever):
                 | StrOutputParser()
             )
 
-            result = chain.invoke("What are the key points from John's email about Q3 results?")
+            result = chain.invoke(
+                "What are the key points from John's email about Q3 results?"
+            )
 
         .. code-block:: none
 
@@ -135,7 +137,9 @@ class ImapRetriever(BaseRetriever):
     """IMAP configuration."""
     k: int = 3
     """Number of results to fetch."""
-    attachment_mode: Literal["names_only", "text_extract", "full_content"] = "names_only"
+    attachment_mode: Literal["names_only", "text_extract", "full_content"] = (
+        "names_only"
+    )
     """Mode for handling attachments."""
     include_attachments_in_content: bool = True
     """Whether to include attachment content in the document."""
@@ -154,48 +158,50 @@ class ImapRetriever(BaseRetriever):
         # Create connection based on SSL mode
         if self.config.ssl_mode == "ssl":
             imap = imaplib.IMAP4_SSL(
-                self.config.host, 
+                self.config.host,
                 port=self.config.port,
                 ssl_context=ssl_context,
-                timeout=self.timeout
+                timeout=self.timeout,
             )
         else:  # "plain" or "starttls"
-            imap = imaplib.IMAP4(self.config.host, port=self.config.port, timeout=self.timeout)
-            
+            imap = imaplib.IMAP4(
+                self.config.host, port=self.config.port, timeout=self.timeout
+            )
+
             if self.config.ssl_mode == "starttls":
                 imap.starttls(ssl_context)
 
         try:
             # Authentication
             self._authenticate(imap)
-            
+
             # Select INBOX (default mailbox)
             imap.select()
             yield imap
-            
+
         finally:
             try:
                 imap.close()
                 imap.logout()
-            except:
+            except Exception:
                 pass
 
     def _authenticate(self, imap: imaplib.IMAP4):
         """Handle different authentication methods."""
-        
+
         if self.config.auth_method == "login":
             # Uses IMAP LOGIN command
             imap.login(self.config.user, self.config.password)
-            
+
         elif self.config.auth_method == "auth_cram_md5":
             # Uses AUTHENTICATE command with CRAM-MD5 mechanism
             imap.login_cram_md5(self.config.user, self.config.password)
-            
+
         elif self.config.auth_method == "auth_plain":
             # TODO: Implement PLAIN authentication via authenticate()
             # Example: imap.authenticate('PLAIN', self._plain_auth_handler)
             raise NotImplementedError("PLAIN authentication not yet implemented")
-            
+
         elif self.config.auth_method == "auth_xoauth":
             # TODO: Implement XOAUTH authentication via authenticate()
             # Example: imap.authenticate('XOAUTH', self._xoauth_auth_handler)
@@ -212,31 +218,31 @@ class ImapRetriever(BaseRetriever):
             with self._get_mailbox() as imap:
                 # Search for messages
                 typ, msg_data = imap.search(None, query)
-                if typ != 'OK':
+                if typ != "OK":
                     return documents
-                    
+
                 # Get message IDs
                 msg_ids = msg_data[0].split()
-                
+
                 # Limit results
                 msg_ids = msg_ids[:k]
-                
+
                 # Fetch each message
                 for msg_id in msg_ids:
-                    typ, msg_data = imap.fetch(msg_id, '(RFC822)')
-                    if typ == 'OK':
+                    typ, msg_data = imap.fetch(msg_id, "(RFC822)")
+                    if typ == "OK":
                         raw_email = msg_data[0][1]
                         document = self._parse_email(raw_email, msg_id.decode())
                         documents.append(document)
-                        
+
         except Exception as e:
             raise RuntimeError(f"Failed to retrieve emails: {e}") from e
-            
+
         return documents
 
     def _parse_email(self, raw_email: bytes, msg_id: str) -> Document:
         """Parse raw email bytes into Document using EmailMessage."""
-        
+
         try:
             # Use EmailMessage with modern policy for better parsing
             msg = EmailMessage(policy=default)
@@ -244,36 +250,37 @@ class ImapRetriever(BaseRetriever):
         except Exception:
             # Fallback to legacy parsing if EmailMessage fails
             msg = message_from_bytes(raw_email)
-        
+
         # Extract headers using EmailMessage methods
-        subject = self._decode_header(str(msg.get('Subject', '')))
-        from_addr = self._decode_header(str(msg.get('From', '')))
-        to_addr = self._decode_header(str(msg.get('To', '')))
-        cc_addr = self._decode_header(str(msg.get('CC', '')))
-        bcc_addr = self._decode_header(str(msg.get('BCC', '')))
-        date = msg.get('Date', '')
-        
+        subject = self._decode_header(str(msg.get("Subject", "")))
+        from_addr = self._decode_header(str(msg.get("From", "")))
+        to_addr = self._decode_header(str(msg.get("To", "")))
+        cc_addr = self._decode_header(str(msg.get("CC", "")))
+        bcc_addr = self._decode_header(str(msg.get("BCC", "")))
+        date = msg.get("Date", "")
+
         # Convert date to ISO format for consistency
         if date:
             try:
                 from email.utils import parsedate_to_datetime
+
                 dt = parsedate_to_datetime(date)
                 if dt:
                     date = dt.isoformat()
-            except:
+            except Exception:
                 pass  # Keep original date if parsing fails
-        
+
         # Extract body using improved method
         body = self._extract_body(msg)
-        
+
         # Process attachments using improved method
         attachment_info = self._process_attachments_emailmessage(msg)
-        
+
         # Format content
         page_content = self._format_email_content(
             to_addr, from_addr, subject, cc_addr, bcc_addr, date, body, attachment_info
         )
-        
+
         return Document(
             page_content=page_content,
             metadata={
@@ -290,30 +297,30 @@ class ImapRetriever(BaseRetriever):
         decoded_parts = []
         for part, encoding in decode_header(header):
             if isinstance(part, bytes):
-                decoded_parts.append(part.decode(encoding or 'utf-8', errors='ignore'))
+                decoded_parts.append(part.decode(encoding or "utf-8", errors="ignore"))
             else:
                 decoded_parts.append(part)
-        return ''.join(decoded_parts)
+        return "".join(decoded_parts)
 
     def _extract_body(self, msg: EmailMessage) -> str:
         """Extract text body from email message using EmailMessage.get_body()."""
         # Use EmailMessage.get_body() for intelligent body selection
         # Prefer HTML content, fallback to plain text
-        body_part = msg.get_body(preferencelist=('html', 'plain'))
+        body_part = msg.get_body(preferencelist=("html", "plain"))
         if body_part:
             content_type = body_part.get_content_type()
             payload = body_part.get_payload(decode=True)
-            
+
             if payload:
-                charset = body_part.get_content_charset() or 'utf-8'
-                content = payload.decode(charset, errors='ignore')
-                
+                charset = body_part.get_content_charset() or "utf-8"
+                content = payload.decode(charset, errors="ignore")
+
                 if content_type == "text/html":
                     # Convert HTML to markdown
                     return convert_to_markdown(content, heading_style="atx")
                 else:
                     return content
-        
+
         return ""
 
     def _process_attachments_emailmessage(self, msg: EmailMessage) -> str:
@@ -331,7 +338,7 @@ class ImapRetriever(BaseRetriever):
             filename = attachment.get_filename()
             if filename:
                 attachments += f"- `{filename}`\n"
-        
+
         return attachments
 
     def _extract_attachment_content(self, msg: EmailMessage) -> str:
@@ -343,8 +350,8 @@ class ImapRetriever(BaseRetriever):
                 content = self._process_attachment_part(attachment)
                 if content:
                     contents.append(f"``` `{filename}`\n{content}\n```")
-        
-        return '\n\n'.join(contents)
+
+        return "\n\n".join(contents)
 
     def _process_attachment_part(self, part) -> str | None:
         """Process a single attachment part."""
@@ -359,17 +366,17 @@ class ImapRetriever(BaseRetriever):
         # Use EmailMessage methods for better content type detection
         content_type = part.get_content_type()
         content_disposition = part.get_content_disposition()
-        charset = part.get_content_charset() or 'utf-8'
+        charset = part.get_content_charset() or "utf-8"
         payload = part.get_payload(decode=True)
-        
-        if not payload or content_disposition != 'attachment':
+
+        if not payload or content_disposition != "attachment":
             return None
-            
+
         # Enhanced content type handling with EmailMessage methods
         if content_type == "text/plain":
             try:
                 return payload.decode(charset, errors="ignore")
-            except:
+            except Exception:
                 return None
         elif content_type == "application/pdf":
             try:
@@ -378,38 +385,20 @@ class ImapRetriever(BaseRetriever):
                 for page in pdf.pages:
                     text += page.extract_text() or ""
                 return text.strip() or None
-            except:
+            except Exception:
                 return None
         return None
 
     def _extract_content_full(self, part) -> str | None:
-        """Extract content using docling for full document processing with EmailMessage methods."""
+        """
+        Extract content using docling for full document processing with EmailMessage
+        methods.
+        """
         # Use EmailMessage methods for better content type detection
-        content_type = part.get_content_type()
         content_disposition = part.get_content_disposition()
-        charset = part.get_content_charset() or 'utf-8'
         payload = part.get_payload(decode=True)
-        
-        if not payload or content_disposition != 'attachment':
-            return None
 
-        # Supported content types for docling (excluding images)
-        supported_mimes = {
-            "application/pdf",
-            "application/vnd.openxmlformats-officedocument.wordprocessingml.document",  # DOCX
-            "application/msword",  # DOC
-            "application/rtf",
-            "application/vnd.openxmlformats-officedocument.presentationml.presentation",  # PPTX
-            "application/vnd.ms-powerpoint",  # PPT
-            "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",  # XLSX
-            "application/vnd.ms-excel",  # XLS
-            "application/vnd.oasis.opendocument.text",  # ODT
-            "application/vnd.oasis.opendocument.presentation",  # ODP
-            "application/vnd.oasis.opendocument.spreadsheet",  # ODS
-            "text/plain",
-        }
-
-        if content_type not in supported_mimes:
+        if not payload or content_disposition != "attachment":
             return None
 
         try:
@@ -424,8 +413,15 @@ class ImapRetriever(BaseRetriever):
             return None
 
     def _format_email_content(
-        self, to_addr: str, from_addr: str, subject: str, cc_addr: str, 
-        bcc_addr: str, date: str, body: str, attachment_info: str
+        self,
+        to_addr: str,
+        from_addr: str,
+        subject: str,
+        cc_addr: str,
+        bcc_addr: str,
+        date: str,
+        body: str,
+        attachment_info: str,
     ) -> str:
         """Format email content into a readable string."""
         lines = [
@@ -450,7 +446,7 @@ class ImapRetriever(BaseRetriever):
     #     pass
 
     # def _xoauth_auth_handler(self, response):
-    #     """Handler for XOAUTH authentication."""  
+    #     """Handler for XOAUTH authentication."""
     #     # Implementation for XOAUTH auth
     #     pass
 

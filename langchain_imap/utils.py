@@ -1,4 +1,5 @@
 """IMAP utilities."""
+
 from typing import Literal, Optional
 
 from pydantic import BaseModel, Field
@@ -26,12 +27,10 @@ class ImapConfig(BaseModel):
     )
     ssl_mode: Literal["plain", "ssl", "starttls"] = Field(
         default="ssl",
-        description= "SSL mode: 'plain' for plain, 'ssl' for direct SSL,"
-            " 'starttls' for STARTTLS",
+        description="SSL mode: 'plain' for plain, 'ssl' for direct SSL,"
+        " 'starttls' for STARTTLS",
     )
-    verify_cert: bool = Field(
-        default=True, description="Verify SSL certificate"
-    )
+    verify_cert: bool = Field(default=True, description="Verify SSL certificate")
     cafile: Optional[str] = Field(
         default=None, description="Path to CA file for certificate verification"
     )

@@ -1,6 +1,5 @@
 """Pytest fixtures for unit tests."""
 
-import os
 import subprocess
 import tempfile
 import time
@@ -28,27 +27,40 @@ def greenmail_container(greenmail_data_dir):
 
     # GreenMail configuration
     env_vars = {
-        "GREENMAIL_OPTS": " ".join([
-            "-Dgreenmail.setup.test.all",
-            "-Dgreenmail.users=test:test123@localhost",
-            "-Dgreenmail.preload.dir=/preload",
-            "-Dgreenmail.verbose",
-            "-Dgreenmail.hostname=0.0.0.0"
-        ])
+        "GREENMAIL_OPTS": " ".join(
+            [
+                "-Dgreenmail.setup.test.all",
+                "-Dgreenmail.users=test:test123@localhost",
+                "-Dgreenmail.preload.dir=/preload",
+                "-Dgreenmail.verbose",
+                "-Dgreenmail.hostname=0.0.0.0",
+            ]
+        )
     }
 
     # Prepare podman run command
     container_name = "langchain-imap-test"
     cmd = [
-        "podman", "run", "--rm", "-d",
-        "--name", container_name,
-        "-e", f"GREENMAIL_OPTS={env_vars['GREENMAIL_OPTS']}",
-        "-v", f"{preload_dir}:/preload:ro,Z",
-        "-p", "3143:3143",
-        "-p", "3993:3993",
-        "-p", "8080:8080",
-        "--log-driver", "k8s-file",
-        "--log-opt", f"path={log_path.absolute()}",
+        "podman",
+        "run",
+        "--rm",
+        "-d",
+        "--name",
+        container_name,
+        "-e",
+        f"GREENMAIL_OPTS={env_vars['GREENMAIL_OPTS']}",
+        "-v",
+        f"{preload_dir}:/preload:ro,Z",
+        "-p",
+        "3143:3143",
+        "-p",
+        "3993:3993",
+        "-p",
+        "8080:8080",
+        "--log-driver",
+        "k8s-file",
+        "--log-opt",
+        f"path={log_path.absolute()}",
         "docker.io/greenmail/standalone:2.1.5",
     ]
 
@@ -77,8 +89,9 @@ def greenmail_container(greenmail_data_dir):
 
     finally:
         # Clean up container
-        subprocess.run(["podman", "stop", container_name],
-                      capture_output=True, check=False)
+        subprocess.run(
+            ["podman", "stop", container_name], capture_output=True, check=False
+        )
 
 
 @pytest.fixture(scope="session")
@@ -94,6 +107,7 @@ def greenmail_imaps_config():
         verify_cert=False,
     )
     return config
+
 
 @pytest.fixture(scope="session")
 def greenmail_imap_starttls_config():

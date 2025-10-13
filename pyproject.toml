@@ -5,8 +5,8 @@ build-backend = "poetry.core.masonry.api"
 [tool.poetry]
 name = "langchain-imap"
 version = "0.1.0"
-description = "An integration package connecting Imap and LangChain"
-authors = []
+description = "LangChain integration for retrieving emails from IMAP servers"
+authors = ["Julien FOURET <julien.fouret@univ-lyon1.fr>"]
 readme = "README.md"
 repository = "https://github.com/langchain-ai/langchain"
 license = "MIT"

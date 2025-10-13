@@ -1,17 +1,19 @@
 """Unit tests for ImapRetriever with GreenMail."""
 
 import pytest
+
 from langchain_imap import ImapRetriever
+
 
 class TestImapRetriever:
     """Test ImapRetriever functionality."""
 
     def test_basic_retrieval(self, greenmail_container, greenmail_imaps_config):
         """Test basic email retrieval."""
-        retriever = ImapRetriever(config=greenmail_imaps_config, k = 50)
+        retriever = ImapRetriever(config=greenmail_imaps_config, k=50)
 
         # Retrieve all messages
-        docs = retriever.invoke('ALL')
+        docs = retriever.invoke("ALL")
         assert len(docs) == 5  # We have 5 test emails
 
         # Check that all documents have expected structure
@@ -30,7 +32,7 @@ class TestImapRetriever:
 
     def test_urgent_subject_search(self, greenmail_container, greenmail_imaps_config):
         """Test searching for emails with URGENT in subject."""
-        retriever = ImapRetriever(config=greenmail_imaps_config, k = 50)
+        retriever = ImapRetriever(config=greenmail_imaps_config, k=50)
 
         # Search for URGENT subjects (should match 3 emails: two plain text + one HTML)
         docs = retriever.invoke('SUBJECT "URGENT"')
@@ -40,7 +42,9 @@ class TestImapRetriever:
         urgent_subjects = [doc.metadata["subject"].upper() for doc in docs]
         assert all("URGENT" in subject for subject in urgent_subjects)
 
-    def test_html_to_markdown_conversion(self, greenmail_container, greenmail_imaps_config):
+    def test_html_to_markdown_conversion(
+        self, greenmail_container, greenmail_imaps_config
+    ):
         """Test HTML email conversion to markdown."""
         retriever = ImapRetriever(config=greenmail_imaps_config)
 
@@ -89,14 +93,19 @@ class TestImapRetriever:
 
         # All returned dates should be Oct 1st or later
         import datetime
+
         cutoff_date = datetime.date(2023, 10, 1)
         for doc in docs:
             doc_date = datetime.date.fromisoformat(doc.metadata["date"].split("T")[0])
             assert doc_date >= cutoff_date
 
-    def test_attachment_mode_names_only(self, greenmail_container, greenmail_imaps_config):
+    def test_attachment_mode_names_only(
+        self, greenmail_container, greenmail_imaps_config
+    ):
         """Test attachment mode 'names_only'."""
-        retriever = ImapRetriever(config=greenmail_imaps_config, attachment_mode="names_only")
+        retriever = ImapRetriever(
+            config=greenmail_imaps_config, attachment_mode="names_only"
+        )
 
         docs = retriever.invoke("ALL")
         # All our test emails have no attachments, so no attachment field should appear
@@ -116,7 +125,9 @@ class TestImapRetriever:
 
     def test_auth_failure(self, greenmail_container, greenmail_imaps_config):
         """Test that authentication fails with an incorrect password."""
-        invalid_config = greenmail_imaps_config.copy(update={"password": "wrongpassword"})
+        invalid_config = greenmail_imaps_config.copy(
+            update={"password": "wrongpassword"}
+        )
         retriever = ImapRetriever(config=invalid_config)
 
         with pytest.raises(RuntimeError, match="Failed to retrieve emails"):
@@ -130,7 +141,8 @@ class TestImapRetriever:
         # This tests combining SUBJECT and negated FROM
         docs = retriever.invoke('SUBJECT "URGENT" NOT FROM "security@example.com"')
 
-        # Should get 2 results: urgent-1 (sender) and urgent-html (boss), but not urgent-2 (security)
+        # Should get 2 results: urgent-1 (sender) and urgent-html (boss),
+        # but not urgent-2 (security)
         assert len(docs) == 2
 
         senders = {doc.metadata["from"] for doc in docs}

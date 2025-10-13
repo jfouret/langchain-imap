@@ -1,6 +1,6 @@
 # langchain-imap
 
-This package contains the LangChain integration with Imap
+This package provides the `ImapRetriever` for LangChain, enabling search and retrieval of emails from IMAP servers as LangChain `Document` objects.
 
 ## Installation
 
@@ -8,39 +8,52 @@ This package contains the LangChain integration with Imap
 pip install -U langchain-imap
 ```
 
-And you should configure credentials by setting the following environment variables:
+For full document processing (DOCX, PPTX, etc.) with docling:
 
-* TODO: fill this out
-
-## Chat Models
-
-`ChatImap` class exposes chat models from Imap.
-
-```python
-from langchain_imap import ChatImap
-
-llm = ChatImap()
-llm.invoke("Sing a ballad of LangChain.")
+```bash
+pip install "langchain-imap[docling]"
 ```
 
-## Embeddings
-
-`ImapEmbeddings` class exposes embeddings from Imap.
+## Quickstart
 
 ```python
-from langchain_imap import ImapEmbeddings
+from langchain_imap import ImapConfig, ImapRetriever
 
-embeddings = ImapEmbeddings()
-embeddings.embed_query("What is the meaning of life?")
+config = ImapConfig(
+    host="imap.gmail.com",
+    port=993,
+    user="your-email@gmail.com",
+    password="your-app-password",  # Use app password for Gmail
+    ssl_mode="ssl",
+)
+
+retriever = ImapRetriever(config=config, k=10)
+
+# Search emails using IMAP syntax
+docs = retriever.invoke('SUBJECT "urgent"')
+for doc in docs:
+    print(doc.page_content)  # Formatted email content
 ```
 
-## LLMs
+## Attachment Handling
 
-`ImapLLM` class exposes LLMs from Imap.
+Three modes:
+- `"names_only"` (default): List attachment names
+- `"text_extract"`: Extract text from PDFs and plain text attachments
+- `"full_content"`: Full extraction using docling from office documents (requires [docling] extra)
 
-```python
-from langchain_imap import ImapLLM
+## Use in Chains
 
-llm = ImapLLM()
-llm.invoke("The meaning of life is")
-```
+Integrate with LLMs for QA over emails. See the [documentation notebook](docs/retrievers.ipynb) for examples.
+
+## Configuration
+
+- **auth_method**: "login" (default), supports others
+- **ssl_mode**: "ssl" (default), "starttls", "plain"
+- **verify_cert**: `False` for self-signed certs (not for production)
+
+Supports Gmail, Outlook, Yahoo, custom IMAP servers.
+
+## API Reference
+
+[ImapRetriever](https://api.python.langchain.com/en/latest/retrievers/langchain_imap.retrievers.ImapRetriever.html)

@@ -1,7 +1,6 @@
 from importlib import metadata
 
-
-from langchain_imap.retrievers import ImapRetriever, ImapConfig
+from langchain_imap.retrievers import ImapConfig, ImapRetriever
 
 try:
     __version__ = metadata.version(__package__)
