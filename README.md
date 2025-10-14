@@ -44,16 +44,10 @@ Three modes:
 
 ## Use in Chains
 
-Integrate with LLMs for QA over emails. See the [documentation notebook](docs/retrievers.ipynb) for examples.
+Integrate with LLMs for QA over emails. See the [documentation notebook](https://github.com/jfouret/langchain-imap/blob/main/docs/retrievers.ipynb) for examples.
 
 ## Configuration
 
 - **auth_method**: "login" (default), supports others
 - **ssl_mode**: "ssl" (default), "starttls", "plain"
 - **verify_cert**: `False` for self-signed certs (not for production)
-
-Supports Gmail, Outlook, Yahoo, custom IMAP servers.
-
-## API Reference
-
-[ImapRetriever](https://api.python.langchain.com/en/latest/retrievers/langchain_imap.retrievers.ImapRetriever.html)
