@@ -3,7 +3,7 @@
 import subprocess
 import time
 from pathlib import Path
-from typing import Generator
+from typing import Iterator
 
 import pytest
 import requests
@@ -12,7 +12,7 @@ from langchain_imap import ImapConfig
 
 
 @pytest.fixture(scope="session")
-def greenmail_container() -> Generator[str]:
+def greenmail_container() -> Iterator[str]:
     """Start GreenMail container using Podman."""
     # Path to preload directory (relative to project root)
     preload_dir = Path(__file__).parent.parent / "fixtures" / "preload"
@@ -84,6 +84,9 @@ def greenmail_container() -> Generator[str]:
         # Clean up container
         subprocess.run(
             ["podman", "stop", container_name], capture_output=True, check=False
+        )
+        subprocess.run(
+            ["podman", "rm", container_name], capture_output=True, check=False
         )
 
 
