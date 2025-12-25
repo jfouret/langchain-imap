@@ -1,4 +1,4 @@
-.PHONY: all format lint test tests integration_tests help extended_tests
+.PHONY: all format lint test tests integration_tests help extended_tests docs serve-docs clean-docs
 
 # Default target executed when no arguments are given to make.
 all: help
@@ -51,6 +51,16 @@ check_imports: $(shell find langchain_imap -name '*.py')
 	poetry run python ./scripts/check_imports.py $^
 
 ######################
+# DOCUMENTATION
+######################
+
+docs:
+	poetry run sphinx-build -b html docs docs/_build
+
+clean-docs:
+	rm -rf docs/_build
+
+######################
 # HELP
 ######################
 
@@ -62,3 +72,6 @@ help:
 	@echo 'test                         - run unit tests'
 	@echo 'tests                        - run unit tests'
 	@echo 'test TEST_FILE=<test_file>   - run all tests in file'
+	@echo 'docs                         - build documentation'
+	@echo 'serve-docs                   - serve documentation locally'
+	@echo 'clean-docs                   - clean generated documentation files'

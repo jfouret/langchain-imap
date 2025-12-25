@@ -6,7 +6,10 @@ from pydantic import BaseModel, Field
 
 
 class ImapConfig(BaseModel):
-    """IMAP configuration model."""
+    """IMAP configuration model.
+    
+    :attribute host: IMAP server hostname (e.g., 'imap.gmail.com')
+    """
 
     host: str = Field(
         description="IMAP server hostname (e.g., 'imap.gmail.com')", min_length=1
@@ -14,8 +17,7 @@ class ImapConfig(BaseModel):
     user: str = Field(description="Username/email for authentication", min_length=1)
     password: str = Field(
         description=(
-            "User's password for 'login' or 'login_utf8' auth, "
-            "or the access token for 'xoauth2'."
+            "User's password or token"
         ),
         min_length=1,
     )

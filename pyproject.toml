@@ -8,15 +8,15 @@ version = "0.1.0"
 description = "LangChain integration for retrieving emails from IMAP servers"
 authors = ["Julien FOURET <julien.fouret@univ-lyon1.fr>"]
 readme = "README.md"
-repository = "https://github.com/langchain-ai/langchain"
+repository = "https://github.com/jfouret/langchain-imap"
 license = "MIT"
 
 [tool.mypy]
 disallow_untyped_defs = "True"
 
 [tool.poetry.urls]
-"Source Code" = "https://github.com/langchain-ai/langchain/tree/master/libs/partners/imap"
-"Release Notes" = "https://github.com/langchain-ai/langchain/releases?q=tag%3A%22imap%3D%3D0%22&expanded=true"
+"Source Code" = "https://github.com/jfouret/langchain-imap"
+"Release Notes" = "https://github.com/jfouret/langchain-imap"
 
 [tool.poetry.dependencies]
 python = ">=3.11,<4.0"
@@ -60,6 +60,9 @@ optional = true
 [tool.poetry.group.dev.dependencies]
 ipykernel = "^6.30.1"
 langchain-openai = "^0.3.35"
+sphinx = "^8.2.3"
+sphinx-rtd-theme = "^3.0.2"
+sphinx-autobuild = "^2025.8.25"
 
 [tool.poetry.group.test.dependencies]
 pytest = "^7.4.3"

@@ -3,3 +3,7 @@ poetry.lock
 /.mypy_cache/
 *.whl
 *.tar.gz
+
+# Documentation
+/build
+/site
